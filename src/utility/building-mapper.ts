@@ -1,23 +1,31 @@
 import { BuildingDto } from "../dto/building-dto";
 import { BuildingWarmWaterDto } from "../dto/building-warm-water-dto";
 import { BuildingWarmthDto } from "../dto/building-warmth-dto";
-import { Building } from "../model/building";
-import { BuildingWarmWater } from "../model/building-warm-water";
-import { BuildingWarmth } from "../model/building-warmth";
+import BuildingModel, { Building } from "../model/building";
+import BuildingWarmWaterModel, { BuildingWarmWater } from "../model/building-warm-water";
+import BuildingWarmthModel, { BuildingWarmth } from "../model/building-warmth";
 
   
-export const buildingFromDto = (buildingDto: BuildingDto): Building => {
-    const building = {
-        firstName: buildingDto.firstName,
-        lastName: buildingDto.lastName,
-        address: buildingDto.address,
-        livingSpace: buildingDto.livingSpace,
-        warmth: buildingDto.warmth.map(buildingWarmthFromDto),
-        warmWater: buildingDto.warmWater.map(buildingWarmWaterFromDto),
-        heatedBasement: buildingDto.heatedBasement,
-        apartments: buildingDto.apartments,
+export const buildingFromDto = async (buildingDto: BuildingDto) => {
+    try {
+        if (!buildingDto) {
+            throw new Error("BuildingDto is null or undefined.");
+        }
+        const warmth = await Promise.all(buildingDto.warmth.map(buildingWarmthFromDto))
+        const warmWater = await Promise.all(buildingDto.warmWater.map(buildingWarmWaterFromDto))
+        return await BuildingModel.create({
+            firstName: buildingDto.firstName,
+            lastName: buildingDto.lastName,
+            address: buildingDto.address,
+            livingSpace: buildingDto.livingSpace,
+            warmth: warmth,
+            warmWater: warmWater,
+            heatedBasement: buildingDto.heatedBasement,
+            apartments: buildingDto.apartments,
+        })
+    } catch (error) {
+        console.error("Error transforming Building DTO: ", error)
     }
-    return building
 }
 
 export const buildingToDto = (building: Building): BuildingDto => {
@@ -34,33 +42,31 @@ export const buildingToDto = (building: Building): BuildingDto => {
     return buildingDto
 }
 
-export const buildingWarmthFromDto = (buildingWarmthDto: BuildingWarmthDto): BuildingWarmth => {
-    const buildingWarmth = {
+export const buildingWarmthFromDto = async (buildingWarmthDto: BuildingWarmthDto) => {
+    return await BuildingWarmthModel.create({
         buildingId: buildingWarmthDto.buildingId,
         value: buildingWarmthDto.value
-    }
-    return buildingWarmth
+    }).catch(error =>  console.error("Error transforming Warmth DTO: ", error))
 }
 
 export const buildingWarmthToDto = (buildingWarmth: BuildingWarmth): BuildingWarmthDto => {
     const buildingWarmthDto = {
-        buildingId: buildingWarmth.buildingId,
+        buildingId: buildingWarmth.buildingId._id.toString(),
         value: buildingWarmth.value
     }
     return buildingWarmthDto
 }
 
-export const buildingWarmWaterFromDto = (buildingWarmWaterDto: BuildingWarmWaterDto): BuildingWarmWater => {
-    const buildingWarmWater = {
+export const buildingWarmWaterFromDto = async (buildingWarmWaterDto: BuildingWarmWaterDto) => {
+    return await BuildingWarmWaterModel.create({
         buildingId: buildingWarmWaterDto.buildingId,
         value: buildingWarmWaterDto.value
-    }
-    return buildingWarmWater
+    }).catch(error =>  console.error("Error transforming WarmWater DTO: ", error))
 }
 
 export const buildingWarmWaterToDto = (buildingWarmWater: BuildingWarmWater): BuildingWarmWaterDto => {
     const buildingWarmWaterDto = {
-        buildingId: buildingWarmWater.buildingId,
+        buildingId: buildingWarmWater.buildingId._id.toString(),
         value: buildingWarmWater.value
     }
     return buildingWarmWaterDto
