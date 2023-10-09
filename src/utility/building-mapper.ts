@@ -44,7 +44,6 @@ export const buildingToDto = (building: Building): BuildingDto => {
 
 export const buildingWarmthFromDto = async (buildingWarmthDto: BuildingWarmthDto) => {
     return await BuildingWarmthModel.create({
-        buildingId: buildingWarmthDto.buildingId,
         value: buildingWarmthDto.value
     }).catch(error =>  console.error("Error transforming Warmth DTO: ", error))
 }
@@ -59,7 +58,6 @@ export const buildingWarmthToDto = (buildingWarmth: BuildingWarmth): BuildingWar
 
 export const buildingWarmWaterFromDto = async (buildingWarmWaterDto: BuildingWarmWaterDto) => {
     return await BuildingWarmWaterModel.create({
-        buildingId: buildingWarmWaterDto.buildingId,
         value: buildingWarmWaterDto.value
     }).catch(error =>  console.error("Error transforming WarmWater DTO: ", error))
 }
