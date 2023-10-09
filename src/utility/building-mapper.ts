@@ -9,29 +9,25 @@ import BuildingWarmWaterModel, {
 import BuildingWarmthModel, { BuildingWarmth } from "../model/building-warmth";
 
 export const buildingFromDto = async (buildingDto: BuildingDto) => {
-  try {
-    if (!buildingDto) {
-      throw new Error("Building DTO is null or undefined");
-    }
-    const warmth = await Promise.all(
-      buildingDto.warmth.map(buildingWarmthFromDto)
-    );
-    const warmWater = await Promise.all(
-      buildingDto.warmWater.map(buildingWarmWaterFromDto)
-    );
-    return BuildingModel.create({
-      firstName: buildingDto.firstName,
-      lastName: buildingDto.lastName,
-      address: buildingDto.address,
-      livingSpace: buildingDto.livingSpace,
-      warmth: warmth,
-      warmWater: warmWater,
-      heatedBasement: buildingDto.heatedBasement,
-      apartments: buildingDto.apartments,
-    });
-  } catch (error) {
-    console.error("Error transforming Building DTO: ", error);
+  if (!buildingDto) {
+    throw new Error("Building DTO is null or undefined");
   }
+  const warmth = await Promise.all(
+    buildingDto.warmth.map(buildingWarmthFromDto)
+  );
+  const warmWater = await Promise.all(
+    buildingDto.warmWater.map(buildingWarmWaterFromDto)
+  );
+  return BuildingModel.create({
+    firstName: buildingDto.firstName,
+    lastName: buildingDto.lastName,
+    address: buildingDto.address,
+    livingSpace: buildingDto.livingSpace,
+    warmth: warmth,
+    warmWater: warmWater,
+    heatedBasement: buildingDto.heatedBasement,
+    apartments: buildingDto.apartments,
+  });
 };
 
 export const buildingToDto = async (

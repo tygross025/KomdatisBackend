@@ -7,4 +7,8 @@ router.get("/", (req: Request, res: Response) => {
   buildingController.getBuildings(req, res);
 });
 
+router.post("/add", (req: Request, res: Response) => {
+  buildingController.addBuilding(req, res);
+});
+
 export default router;
