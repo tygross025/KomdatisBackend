@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { BuildingDto } from "../dto/building-dto";
 import { BuildingWarmWaterDto } from "../dto/building-warm-water-dto";
 import { BuildingWarmthDto } from "../dto/building-warmth-dto";
@@ -33,18 +34,38 @@ export const buildingFromDto = async (buildingDto: BuildingDto) => {
   }
 };
 
-export const buildingToDto = (building: Building): BuildingDto => {
-  const buildingDto = {
-    firstName: building.firstName,
-    lastName: building.lastName,
-    address: building.address,
-    livingSpace: building.livingSpace,
-    warmth: building.warmth.map(buildingWarmthToDto),
-    warmWater: building.warmWater.map(buildingWarmWaterToDto),
-    heatedBasement: building.heatedBasement,
-    apartments: building.apartments,
-  };
-  return buildingDto;
+export const buildingToDto = async (
+  building: Building
+): Promise<BuildingDto | undefined> => {
+  try {
+    const warmthArr = await Promise.all(
+      building.warmth.map((warmth) =>
+        BuildingWarmthModel.findById(warmth._id).then((o) =>
+          buildingWarmthToDto(o!)
+        )
+      )
+    );
+    const warmWaterArr = await Promise.all(
+      building.warmWater.map((warmWater) =>
+        BuildingWarmWaterModel.findById(warmWater._id).then((o) =>
+          buildingWarmWaterToDto(o!)
+        )
+      )
+    );
+    const buildingDto = {
+      firstName: building.firstName,
+      lastName: building.lastName,
+      address: building.address,
+      livingSpace: building.livingSpace,
+      warmth: warmthArr,
+      warmWater: warmWaterArr,
+      heatedBasement: building.heatedBasement,
+      apartments: building.apartments,
+    };
+    return buildingDto;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 export const buildingWarmthFromDto = async (
@@ -63,7 +84,6 @@ export const buildingWarmthToDto = (
   buildingWarmth: BuildingWarmth
 ): BuildingWarmthDto => {
   const buildingWarmthDto = {
-    buildingId: buildingWarmth.buildingId._id.toString(),
     value: buildingWarmth.value,
   };
   return buildingWarmthDto;
@@ -85,7 +105,6 @@ export const buildingWarmWaterToDto = (
   buildingWarmWater: BuildingWarmWater
 ): BuildingWarmWaterDto => {
   const buildingWarmWaterDto = {
-    buildingId: buildingWarmWater.buildingId._id.toString(),
     value: buildingWarmWater.value,
   };
   return buildingWarmWaterDto;
